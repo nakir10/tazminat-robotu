@@ -17,9 +17,10 @@ st.markdown("""
     [data-testid="stSidebar"] *{color:#E8E4D9!important;}
     [data-testid="stSidebar"] label{color:#C9A84C!important;font-size:0.73rem!important;font-weight:600!important;letter-spacing:.08em!important;text-transform:uppercase!important;}
     
+    /* 🏛️ ORİJİNAL ROBOT BAŞLIK (RH) ŞABLONU */
     .rh{background:#1A1A2E;color:#F7F6F1;padding:1.8rem 2.5rem 1.4rem;border-radius:8px;margin-bottom:1.2rem;border-left:6px solid #C9A84C;font-family:'IBM Plex Serif',serif;}
-    .rh h1{font-size:1.5rem;font-weight:600;color:#F7F6F1;margin:0 0 .3rem;}
-    .rh .sub{font-size:.75rem;color:#C9A84C;letter-spacing:.12em;text-transform:uppercase;font-family:'IBM Plex Mono',monospace;}
+    .rh h1{font-size:1.5rem;font-weight:600;color:#F7F6F1!important;margin:0 0 .3rem!important;}
+    .rh .sub{font-size:.75rem;color:#C9A84C!important;letter-spacing:.12em;text-transform:uppercase;font-family:'IBM Plex Mono',monospace;}
     
     .sec{font-family:'IBM Plex Serif',serif;font-size:.95rem;font-weight:600;color:#1A1A2E;border-bottom:2px solid #C9A84C;padding-bottom:.35rem;margin:1.4rem 0 .8rem;}
     .card{background:#fff;border:1px solid #DDD9CE;border-radius:6px;padding:1rem 1.4rem;margin:.4rem 0;border-left:4px solid #C9A84C;}
@@ -39,10 +40,10 @@ st.markdown("""
     .ptbl td{padding:.38rem .7rem;border-bottom:1px solid #E8E4DC;color:#333;}
     .ptbl tr:hover td{background:#FAF8F3;}
     
-    /* 🛠️ BUTON TASARIMI VE YAZI RENGİNİ ALTIN SARISINA ZORLAMA */
-    .stButton>button {
+    /* 🛠️ BUTON TASARIMI VE ENTER KUTUSU UYUMU */
+    .stButton>button, [data-testid="stForm"] button {
         background:#1A1A2E!important;
-        color:#C9A84C!important; /* Yazı rengi kesinlikle Altın Sarısı */
+        color:#C9A84C!important;
         border:2px solid #C9A84C!important;
         border-radius:4px!important;
         font-family:'IBM Plex Mono',monospace!important;
@@ -53,51 +54,32 @@ st.markdown("""
         padding:.55rem 2rem!important;
         width:100%;
     }
-    .stButton>button:hover {
+    .stButton>button:hover, [data-testid="stForm"] button:hover {
         background:#C9A84C!important;
-        color:#1A1A2E!important; /* Üzerine gelince koyu lacivert olur */
+        color:#1A1A2E!important;
     }
-    .stButton>button * {
-        color: #C9A84C !important; /* Buton içindeki gizli span etiketlerini de altın sarısı yapar */
+    .stButton>button *, [data-testid="stForm"] button * {
+        color: #C9A84C !important;
     }
-    .stButton>button:hover * {
+    .stButton>button:hover *, [data-testid="stForm"] button:hover * {
         color: #1A1A2E !important;
+    }
+    
+    /* Streamlit Form Kutusu Çerçevesini Gizleme (Görsel temizlik için) */
+    [data-testid="stForm"] {
+        border: none !important;
+        padding: 0 !important;
     }
     
     .foot{font-size:.7rem;color:#999;font-style:italic;margin-top:1.8rem;padding-top:.9rem;border-top:1px solid #DDD;font-family:'IBM Plex Serif',serif;}
     
-    /* 🔒 GİRİŞ EKRANI AÇIK ZEMİN OKUNABİLİRLİK AYARLARI */
+    /* GİRİŞ EKRANI OKUNABİLİRLİK AYARLARI */
     h3, label, p, span {
         color: #1A1A2E; 
     }
     .stTextInput input {
         color: #1A1A2E !important;
         background-color: #FFFFFF !important;
-    }
-
-    /* 🏛️ ÜST BAŞLIK KUTUSU VE İÇİNDEKİ YAZILARI KORUMA ALTI */
-    .custom-main-header {
-        background: #1A1A2E !important;
-        padding: 2.5rem;
-        border-radius: 8px;
-        text-align: center;
-        border-bottom: 4px solid #C9A84C !important;
-        font-family: 'IBM Plex Serif', serif;
-        margin-bottom: 2rem;
-    }
-    .custom-main-header h1 {
-        font-size: 2.5rem !important;
-        font-weight: 600 !important;
-        margin: 0 !important;
-        color: #F7F6F1 !important; /* İsmi kesinlikle kirli beyaz yapar */
-    }
-    .custom-main-header p {
-        font-size: 0.9rem !important;
-        color: #C9A84C !important; /* Alt başlığı kesinlikle altın sarısı yapar */
-        margin-top: 0.5rem !important;
-        letter-spacing: 0.15em !important;
-        text-transform: uppercase !important;
-        font-family: 'IBM Plex Mono', monospace !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -113,22 +95,26 @@ if not st.session_state.giris_yapildi:
     with col2:
         st.error("🔒 BU ALANA ERİŞİM KISITLANMIŞTIR")
         st.subheader("Sisteme Giriş Yapın")
-        sifre = st.text_input("Giriş Şifresi:", type="password")
         
-        if st.button("Sisteme Giriş Yap", use_container_width=True):
-            if sifre == "771044":  
-                st.session_state.giris_yapildi = True
-                st.rerun()
-            else:
-                st.error("Girdiğiniz şifre hatalıdır. Lütfen tekrar deneyiniz.")
+        # Enter tuşunun çalışması için şifre giriş alanını ve butonunu form içine alıyoruz
+        with st.form("giris_formu", clear_on_submit=False):
+            sifre = st.text_input("Giriş Şifresi:", type="password")
+            giriş_butonu = st.form_submit_button("Sisteme Giriş Yap", use_container_width=True)
+            
+            if giriş_butonu:
+                if sifre == "771044":  
+                    st.session_state.giris_yapildi = True
+                    st.rerun()
+                else:
+                    st.error("Girdiğiniz şifre hatalıdır. Lütfen tekrar deneyiniz.")
     st.stop()
 
 
-# ─── KURUMSAL BAŞLIK EKRANI ───
+# ─── KURUMSAL BAŞLIK EKRANI (TAM SİZİN ŞABLONUNUZDA) ───
 st.markdown("""
-    <div class="custom-main-header">
+    <div class="rh">
         <h1>Av. Mahmut NAKİR</h1>
-        <p>Hukuk Otomasyon ve Bilgi Bankası Platformu</p>
+        <div class="sub">Hukuk Otomasyon ve Bilgi Bankası Platformu</div>
     </div>
 """, unsafe_allow_html=True)
 
