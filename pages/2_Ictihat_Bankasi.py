@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 
-# 🎨 TAZMİNAT ROBOTU İMZA TASARIMI (CSS MAKYAJI)
+# 🎨 TAZMİNAT ROBOTU İMZA TASARIMI VE OKUNABİLİRLİK GÜNCELLEMESİ (CSS MAKYAJI)
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
@@ -17,22 +17,34 @@ st.markdown("""
     .card{background:#fff;border:1px solid #DDD9CE;border-radius:6px;padding:1rem 1.4rem;margin:.4rem 0;border-left:4px solid #C9A84C;}
     .card .lbl{font-size:.7rem;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.1em;font-family:'IBM Plex Mono',monospace;}
     .card .val{font-size:1.4rem;font-weight:600;color:#1A1A2E;font-family:'IBM Plex Mono',monospace;margin-top:.15rem;}
-    .card.grn{border-left-color:#2E7D32;} .card.blu{border-left-color:#1565C0;} .card.red{border-left-color:#C62828;}
+    .card.grn{border-left-color:#2E7D32;} .card.blu{border-left-color:#1565C0;} .card.red-color{border-left-color:#C62828;}
     .grand{background:#1A1A2E;color:#F7F6F1;padding:1.4rem 2rem;border-radius:8px;margin-top:1.2rem;display:flex;justify-content:space-between;align-items:center;border:2px solid #C9A84C;}
     .grand .gl{font-family:'IBM Plex Serif',serif;font-size:.95rem;color:#C9A84C;letter-spacing:.05em;}
     .grand .gv{font-family:'IBM Plex Mono',monospace;font-size:1.7rem;font-weight:600;color:#F7F6F1;}
     .warn{background:#FFF8E1;border:1px solid #F9A825;border-left:4px solid #F9A825;border-radius:4px;padding:.75rem 1rem;margin:.4rem 0;font-size:.81rem;color:#5D4037;}
     .err{background:#FFEBEE;border:1px solid #C62828;border-left:4px solid #C62828;border-radius:4px;padding:.75rem 1rem;margin:.4rem 0;font-size:.84rem;color:#C62828;font-weight:500;}
+    
+    /* 📝 İÇTİHAT BANKASI YAZI VE TABLO DÜZELTMELERİ */
+    p, span, label, li, td, th {
+        color: #1A1A2E !important; /* Görünmeyen tüm beyaz/açık yazıları asil koyu laciverte çevirir */
+    }
+    
+    /* Girdi alanlarının (Input, Textarea, Selectbox) içindeki yazıların rengi */
+    .stTextInput input, .stTextArea textarea, .stSelectbox div {
+        color: #1A1A2E !important;
+        background-color: #FFFFFF !important;
+    }
+    
     .ptbl{width:100%;border-collapse:collapse;font-size:.82rem;margin:.4rem 0;}
-    .ptbl th{background:#F0EDE8;color:#1A1A2E;font-weight:600;padding:.45rem .7rem;text-align:left;font-family:'IBM Plex Mono',monospace;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;}
-    .ptbl td{padding:.38rem .7rem;border-bottom:1px solid #E8E4DC;color:#333;}
+    .ptbl th{background:#F0EDE8;color:#1A1A2E!important;font-weight:600;padding:.45rem .7rem;text-align:left;font-family:'IBM Plex Mono',monospace;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;}
+    .ptbl td{padding:.38rem .7rem;border-bottom:1px solid #E8E4DC;color:#333!important;}
     .ptbl tr:hover td{background:#FAF8F3;}
+    
     .stButton>button{background:#1A1A2E!important;color:#C9A84C!important;border:2px solid #C9A84C!important;border-radius:4px!important;font-family:'IBM Plex Mono',monospace!important;font-weight:600!important;font-size:.83rem!important;letter-spacing:.1em!important;text-transform:uppercase!important;padding:.55rem 2rem!important;width:100%;}
     .stButton>button:hover{background:#C9A84C!important;color:#1A1A2E!important;}
     .foot{font-size:.7rem;color:#999;font-style:italic;margin-top:1.8rem;padding-top:.9rem;border-top:1px solid #DDD;font-family:'IBM Plex Serif',serif;}
     </style>
 """, unsafe_allow_html=True)
-
 
 # ──────────────────────────────────────────────
 # VERİ KATMANI
