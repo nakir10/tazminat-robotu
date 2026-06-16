@@ -7,7 +7,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# 🎨 TAZMİNAT ROBOTU İMZA TASARIMI (CSS MAKYAJI)
+# 🎨 TAZMİNAT ROBOTU İMZA TASARIMI VE ANA SAYFA NETLEŞTİRME (CSS MAKYAJI)
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
@@ -23,7 +23,7 @@ st.markdown("""
     .card{background:#fff;border:1px solid #DDD9CE;border-radius:6px;padding:1rem 1.4rem;margin:.4rem 0;border-left:4px solid #C9A84C;}
     .card .lbl{font-size:.7rem;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.1em;font-family:'IBM Plex Mono',monospace;}
     .card .val{font-size:1.4rem;font-weight:600;color:#1A1A2E;font-family:'IBM Plex Mono',monospace;margin-top:.15rem;}
-    .card.grn{border-left-color:#2E7D32;} .card.blu{border-left-color:#1565C0;} .card.red{border-left-color:#C62828;}
+    .card.grn{border-left-color:#2E7D32;} .card.blu{border-left-color:#1565C0;} .card.red-color{border-left-color:#C62828;}
     .grand{background:#1A1A2E;color:#F7F6F1;padding:1.4rem 2rem;border-radius:8px;margin-top:1.2rem;display:flex;justify-content:space-between;align-items:center;border:2px solid #C9A84C;}
     .grand .gl{font-family:'IBM Plex Serif',serif;font-size:.95rem;color:#C9A84C;letter-spacing:.05em;}
     .grand .gv{font-family:'IBM Plex Mono',monospace;font-size:1.7rem;font-weight:600;color:#F7F6F1;}
@@ -37,7 +37,16 @@ st.markdown("""
     .stButton>button:hover{background:#C9A84C!important;color:#1A1A2E!important;}
     .foot{font-size:.7rem;color:#999;font-style:italic;margin-top:1.8rem;padding-top:.9rem;border-top:1px solid #DDD;font-family:'IBM Plex Serif',serif;}
     
-    /* Ana sayfa başlıkları için ek asil uyarlama */
+    /* 🔒 GİRİŞ EKRANI OKUNABİLİRLİK AYARLARI */
+    h3, label, p, span {
+        color: #1A1A2E !important; /* "Sisteme Giriş Yapın" ve "Giriş Şifresi" yazılarını tam netleştirir */
+    }
+    .stTextInput input {
+        color: #1A1A2E !important;
+        background-color: #FFFFFF !important;
+    }
+
+    /* Ana sayfa başlıkları için asil uyarlama */
     .custom-main-header {
         background: #1A1A2E;
         color: #F7F6F1;
@@ -95,7 +104,7 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-# İki Satır Boşluklu Terazi Emojili Karşılama Alanı (Sizin Tasarımınızdaki Bilgi Kutusu Yapısıyla)
+# İki Satır Boşluklu Terazi Emojili Karşılama Alanı
 st.markdown("""
     <div class="warn" style="font-size: 1rem; padding: 1.5rem; background: #fff; border-left-color: #C9A84C; color: #1A1A2E;">
         ⚖️ Av. Mahmut NAKİR'in Platformuna Hoş Geldiniz<br><br><br>
