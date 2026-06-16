@@ -18,9 +18,7 @@ st.markdown("""
     [data-testid="stSidebar"] label{color:#C9A84C!important;font-size:0.73rem!important;font-weight:600!important;letter-spacing:.08em!important;text-transform:uppercase!important;}
     
     /* 🏛️ ORİJİNAL ROBOT BAŞLIK (RH) ŞABLONU */
-    .rh{background:#1A1A2E;color:#F7F6F1;padding:1.8rem 2.5rem 1.4rem;border-radius:8px;margin-bottom:1.2rem;border-left:6px solid #C9A84C;font-family:'IBM Plex Serif',serif;}
-    .rh h1{font-size:1.5rem;font-weight:600;color:#F7F6F1!important;margin:0 0 .3rem!important;}
-    .rh .sub{font-size:.75rem;color:#C9A84C!important;letter-spacing:.12em;text-transform:uppercase;font-family:'IBM Plex Mono',monospace;}
+    .rh{background:#1A1A2E !important;color:#F7F6F1 !important;padding:1.8rem 2.5rem 1.4rem;border-radius:8px;margin-bottom:1.2rem;border-left:6px solid #C9A84C;font-family:'IBM Plex Serif',serif;}
     
     .sec{font-family:'IBM Plex Serif',serif;font-size:.95rem;font-weight:600;color:#1A1A2E;border-bottom:2px solid #C9A84C;padding-bottom:.35rem;margin:1.4rem 0 .8rem;}
     .card{background:#fff;border:1px solid #DDD9CE;border-radius:6px;padding:1rem 1.4rem;margin:.4rem 0;border-left:4px solid #C9A84C;}
@@ -65,7 +63,7 @@ st.markdown("""
         color: #1A1A2E !important;
     }
     
-    /* Streamlit Form Kutusu Çerçevesini Gizleme (Görsel temizlik için) */
+    /* Streamlit Form Kutusu Çerçevesini Gizleme */
     [data-testid="stForm"] {
         border: none !important;
         padding: 0 !important;
@@ -96,7 +94,6 @@ if not st.session_state.giris_yapildi:
         st.error("🔒 BU ALANA ERİŞİM KISITLANMIŞTIR")
         st.subheader("Sisteme Giriş Yapın")
         
-        # Enter tuşunun çalışması için şifre giriş alanını ve butonunu form içine alıyoruz
         with st.form("giris_formu", clear_on_submit=False):
             sifre = st.text_input("Giriş Şifresi:", type="password")
             giriş_butonu = st.form_submit_button("Sisteme Giriş Yap", use_container_width=True)
@@ -110,11 +107,11 @@ if not st.session_state.giris_yapildi:
     st.stop()
 
 
-# ─── KURUMSAL BAŞLIK EKRANI (TAM SİZİN ŞABLONUNUZDA) ───
+# ─── KURUMSAL BAŞLIK EKRANI (DOĞRUDAN SATIR İÇİ RENK SABİTLEME YAPILDI) ───
 st.markdown("""
     <div class="rh">
-        <h1>Av. Mahmut NAKİR</h1>
-        <div class="sub">Hukuk Otomasyon ve Bilgi Bankası Platformu</div>
+        <h1 style="color: #F7F6F1 !important; font-size: 1.5rem; font-weight: 600; margin: 0 0 .3rem;">Av. Mahmut NAKİR</h1>
+        <div class="sub" style="color: #C9A84C !important; font-size: .75rem; letter-spacing: .12em; text-transform: uppercase; font-family: 'IBM Plex Mono',monospace;">Hukuk Otomasyon ve Bilgi Bankası Platformu</div>
     </div>
 """, unsafe_allow_html=True)
 
