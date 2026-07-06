@@ -6,6 +6,44 @@ from datetime import date
 # ─── SAYFA GENİŞLİK VE AYARLARI ───
 st.set_page_config(page_title="Av. Mahmut NAKİR - Hukuk Otomasyon Platformu", layout="wide")
 
+# ─── 🎨 KURUMSAL TASARIM VE CSS ENTEGRASYONU ───
+st.markdown("""
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+    
+    /* Global Okunabilirlik Ayarları */
+    h3, label, p, span { color: #1A1A2E !important; }
+    .stTextInput input, .stNumberInput input { color: #1A1A2E !important; background-color: #FFFFFF !important; }
+    
+    /* 🏛️ Orijinal Robot Başlık (RH) Şablonu */
+    .rh {
+        background: #1A1A2E !important;
+        padding: 1.8rem 2.5rem 1.4rem;
+        border-radius: 8px;
+        margin-bottom: 1.2rem;
+        border-left: 6px solid #C9A84C;
+        font-family: 'IBM Plex Serif', serif;
+    }
+    .sec {
+        font-family: 'IBM Plex Serif', serif;
+        font-size: .95rem;
+        font-weight: 600;
+        color: #1A1A2E;
+        border-bottom: 2px solid #C9A84C;
+        padding-bottom: .35rem;
+        margin: 1.4rem 0 .8rem;
+    }
+    .card {
+        background: #fff;
+        border: 1px solid #DDD9CE;
+        border-radius: 6px;
+        padding: 1rem 1.4rem;
+        margin: .4rem 0;
+        border-left: 4px solid #C9A84C;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
 # ─── ŞİFRE KORUMALI GİRİŞ EKRANI ───
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
@@ -14,13 +52,13 @@ if not st.session_state.authenticated:
     col1, col2, col3 = st.columns([1, 1.8, 1])
     with col2:
         st.markdown('<p style="color: #C62828; font-weight: bold; margin-bottom: 10px; text-align:center;">🔒 BU ALANA ERİŞİM KISITLANMIŞTIR</p>', unsafe_allow_html=True)
-        st.markdown('<p style="color: #1A1A2E; font-size: 1.3rem; font-weight: 600; margin-bottom: 5px; text-align:center;">Sisteme Giriş Yapın</p>', unsafe_allowed_html=True)
+        st.markdown('<p style="color: #1A1A2E; font-size: 1.3rem; font-weight: 600; margin-bottom: 5px; text-align:center;">Sisteme Giriş Yapın</p>', unsafe_allow_html=True)
         
         with st.form("giris_formu", clear_on_submit=False):
             sifre = st.text_input("Giriş Şifresi:", type="password")
             submitted = st.form_submit_button("Sisteme Giriş Yap")
             if submitted:
-                if sifre == "mahmut123":  # Şifrenizi buradan değiştirebilirsiniz
+                if sifre == "mahmut123":  # Şifrenizi buradan yönetebilirsiniz
                     st.session_state.authenticated = True
                     st.rerun()
                 else:
@@ -62,26 +100,26 @@ def to_excel(df_dict):
             df.to_excel(writer, sheet_name=sheet_name, index=False)
     return output.getvalue()
 
-# ─── KURUMSAL BAŞLIK TASARIMI ───
+# ─── KURUMSAL BAŞLIK EKRANI ───
 st.markdown("""
-    <div style="background:#1A1A2E; padding:1.8rem; border-radius:8px; margin-bottom:1.5rem; border-left:6px solid #C9A84C;">
-        <p style="color: #F7F6F1 !important; font-size: 1.6rem; font-weight: 600; margin: 0; padding: 0; font-family: serif;">Av. Mahmut NAKİR</p>
-        <p style="color: #C9A84C !important; font-size: .8rem; margin: 5px 0 0 0; padding: 0; letter-spacing: .12em; text-transform: uppercase;">Hukuk Otomasyon ve Bilgi Bankası Platformu</p>
+    <div class="rh">
+        <p style="color: #F7F6F1 !important; font-size: 1.5rem; font-weight: 600; margin: 0 0 .3rem 0; padding: 0;">Av. Mahmut NAKİR</p>
+        <p style="color: #C9A84C !important; font-size: .75rem; margin: 0; padding: 0; letter-spacing: .12em; text-transform: uppercase; font-family: 'IBM Plex Mono', monospace;">Hukuk Otomasyon ve Bilgi Bankası Platformu</p>
     </div>
-""", unsafe_allowed_html=True)
+""", unsafe_allow_html=True)
 
 # ─── SOL MENÜ NAVİGASYONU ───
-st.sidebar.markdown("<h3 style='color:#C9A84C;'>🏛️ NAVİGASYON PANELİ</h3>", unsafe_allowed_html=True)
+st.sidebar.markdown("<h3 style='color:#C9A84C;'>🏛️ NAVİGASYON PANELİ</h3>", unsafe_allow_html=True)
 modul = st.sidebar.selectbox("Çalışma Modülü Seçin", ["Ana Sayfa", "Destekten Yoksun Kalma & Tazminat", "Araç Değer Kaybı Robotu", "İçtihat & PDF Bilgi Bankası"])
 
 # 📌 1. MODÜL: ANA SAYFA
 if modul == "Ana Sayfa":
     with st.container(border=True):
-        st.subheader("⚖️ Platforma Hoş Geldiniz")
-        st.write("Kullanmak istediğiniz hukuk otomasyon aracına sol taraftaki menüyü kullanarak bağımsız sayfalar halinde erişebilirsiniz.")
+        st.markdown('<p style="font-size: 1.2rem; font-weight:bold; margin-bottom:10px;">⚖️ Av. Mahmut NAKİR\'in Platformuna Hoş Geldiniz</p>', unsafe_allow_html=True)
+        st.markdown('<p style="margin-bottom:20px;">Kullanmak istediğiniz araca sol taraftaki menüyü kullanarak bağımsız sayfalar halinde erişebilirsiniz.</p>', unsafe_allow_html=True)
         st.info("Sistem güncel mevzuat ve Yargıtay dinamiklerine uyumlu olarak çalışmaktadır.")
 
-# 📌 2. MODÜL: DESTEKTEN YOKSUN KALMA VE BEDENSEL HASAR TAZMİNATI (Asıl Projeniz)
+# 📌 2. MODÜL: DESTEKTEN YOKSUN KALMA VE BEDENSEL HASAR TAZMİNATI
 elif modul == "Destekten Yoksun Kalma & Tazminat":
     st.header("📈 Destekten Yoksun Kalma ve Bedensel Hasar Tazminatı")
     st.divider()
@@ -105,10 +143,10 @@ elif modul == "Destekten Yoksun Kalma & Tazminat":
         iskonto = st.checkbox("Progresif Rant İskontosu Uygula (%1.82 Özsermaye formülü)", value=True)
 
     if st.button("Aktüeryal Tazminat Raporu Oluştur"):
-        # Temel Aktüeryal Matematik Hesaplama Algoritması
+        # Temel Aktüeryal Matematik Hesaplama Algoritması (Hatalar düzeltildi)
         toplam_aktif_kazanc = aylik_gelir * 12 * aktif_yil
         toplam_pasif_kazanc = (aylik_gelir * 0.7) * 12 * pasif_yil if pasif_yil > 0 else 0
-        ham_tazminat = (toplam_aktif_kazanc + total_pasif_kazanc if 'total_pasif_kazanc' in locals() else toplam_aktif_kazanc + toplam_pasif_kazanc)
+        ham_tazminat = toplam_aktif_kazanc + toplam_pasif_kazanc
         
         # Kusur ve Maluliyet Etkisi
         if maluliyet > 0:
@@ -130,7 +168,7 @@ elif modul == "Destekten Yoksun Kalma & Tazminat":
         excel_taz = to_excel({"Tazminat_Raporu": taz_df})
         st.download_button("📥 Tazminat Raporunu Excel Olarak İndir", data=excel_taz, file_name="aktüeryal_tazminat_raporu.xlsx")
 
-# 📌 3. MODÜL: MEVZUATA UYGUN ARAÇ DEĞER KAYBI ROBOTU (Yeni İstek)
+# 📌 3. MODÜL: MEVZUATA UYGUN ARAÇ DEĞER KAYBI ROBOTU
 elif modul == "Araç Değer Kaybı Robotu":
     st.header("🚗 Araç Değer Kaybı Hesaplama Robotu (Resmi Gazete)")
     st.divider()
@@ -203,7 +241,7 @@ elif modul == "Araç Değer Kaybı Robotu":
         excel_data = to_excel({"Deger_Kaybi_Raporu": res_df})
         st.download_button("📥 Excel Raporunu İndir", data=excel_data, file_name="deger_kaybi_mevzuat_raporu.xlsx")
 
-# 📌 4. MODÜL: BELİRGİN İÇTİHAT VE PDF ARŞİVİ (Yeni İstek)
+# 📌 4. MODÜL: BELİRGİN İÇTİHAT VE PDF ARŞİVİ
 elif modul == "İçtihat & PDF Bilgi Bankası":
     st.header("📚 Yargıtay İçtihat ve PDF Karar Ambarı")
     st.divider()
