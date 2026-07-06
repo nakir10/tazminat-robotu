@@ -1,12 +1,11 @@
 import streamlit as st
 import pandas as pd
 import io
-from datetime import date
 
 # ─── SAYFA GENİŞLİK VE AYARLARI ───
 st.set_page_config(page_title="Av. Mahmut NAKİR - Hukuk Otomasyon Platformu", layout="wide")
 
-# ─── 🎨 KURUMSUR TASARIM VE CSS ENTEGRASYONU ───
+# ─── 🎨 KURUMSAL TASARIM VE CSS ENTEGRASYONU ───
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
@@ -44,32 +43,10 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# ─── ŞİFRE KORUMALI GİRİŞ EKRANI ───
-if "authenticated" not in st.session_state:
-    st.session_state.authenticated = False
-
-if not st.session_state.authenticated:
-    col1, col2, col3 = st.columns([1, 1.8, 1])
-    with col2:
-        st.markdown('<p style="color: #C62828; font-weight: bold; margin-bottom: 10px; text-align:center;">🔒 BU ALANA ERİŞİM KISITLANMIŞTIR</p>', unsafe_allow_html=True)
-        st.markdown('<p style="color: #1A1A2E; font-size: 1.3rem; font-weight: 600; margin-bottom: 5px; text-align:center;">Sisteme Giriş Yapın</p>', unsafe_allow_html=True)
-        
-        with st.form("giris_formu", clear_on_submit=False):
-            sifre = st.text_input("Giriş Şifresi:", type="password")
-            submitted = st.form_submit_button("Sisteme Giriş Yap")
-            if submitted:
-                if sifre == "mahmut123":  # Şifrenizi buradan yönetebilirsiniz
-                    st.session_state.authenticated = True
-                    st.rerun()
-                else:
-                    st.error("❌ Hatalı Şifre! Lütfen tekrar deneyin.")
-    st.stop()
-
 # ─── HAFIZA ODASI (İÇTİHAT BANKASI İÇİN) ───
 if "ictihat_havuzu" not in st.session_state:
     st.session_state.ictihat_havuzu = [
-        {"hukuk_alani": "Araç Değer Kaybı", "baslik": "Yargıtay 4. HD., E. 2021/456 K. 2022/789", "detay": "Araç değer kaybı hesaplamasında mevzuatta belirlenen parça katsayıları esas alınmalıdır."},
-        {"hukuk_alani": "Destekten Yoksun Kalma", "baslik": "Yargıtay 17. HD., E. 2019/112 K. 2020/345", "detay": "Destek sürelerinde çocukların yaş sınırları yerleşik içtihatlara göre belirlenir."}
+        {"hukuk_alani": "Araç Değer Kaybı", "baslik": "Yargıtay 4. HD., E. 2021/456 K. 2022/789", "detay": "Araç değer kaybı hesaplamasında mevzuatta belirlenen parça katsayıları esas alınmalıdır."}
     ]
 
 # ─── MEVZUAT VERİ TABANI: RESMİ GAZETE PARÇA KATSAYILARI ───
@@ -110,64 +87,39 @@ st.markdown("""
 
 # ─── SOL MENÜ NAVİGASYONU ───
 st.sidebar.markdown("<h3 style='color:#C9A84C;'>🏛️ NAVİGASYON PANELİ</h3>", unsafe_allow_html=True)
-modul = st.sidebar.selectbox("Çalışma Modülü Seçin", ["Ana Sayfa", "Destekten Yoksun Kalma & Tazminat", "Araç Değer Kaybı Robotu", "İçtihat & PDF Bilgi Bankası"])
+modul = st.sidebar.selectbox("Çalışma Modülü Seçin", ["Ana Sayfa", "Tazminat Robotu", "İçtihat & PDF Bilgi Bankası"])
 
-# 📌 1. MODÜL: ANA SAYFA
+# 📌 1. MODÜL: ANA SAYFA (Tamamen Boş ve Projesiz Karşılama Alanı)
 if modul == "Ana Sayfa":
     with st.container(border=True):
-        st.markdown('<p style="font-size: 1.2rem; font-weight:bold; margin-bottom:10px;">⚖️ Av. Mahmut NAKİR\'in Platformuna Hoş Geldiniz</p>', unsafe_allow_html=True)
-        st.markdown('<p style="margin-bottom:20px;">Kullanmak istediğiniz araca sol taraftaki menüyü kullanarak bağımsız sayfalar halinde erişebilirsiniz.</p>', unsafe_allow_html=True)
-        st.info("Sistem güncel mevzuat ve Yargıtay dinamiklerine uyumlu olarak çalışmaktadır.")
+        st.markdown('<p style="font-size: 1.4rem; font-weight:600; font-family: serif; margin-bottom:10px;">Sisteme Hoş Geldiniz</p>', unsafe_allow_html=True)
+        st.markdown('<p style="font-size: 0.95rem; color:#555;">Çalışmak istediğiniz hukuk otomasyon modülüne sol tarafta yer alan navigasyon panelini kullanarak erişebilirsiniz.</p>', unsafe_allow_html=True)
 
-# 📌 2. MODÜL: DESTEKTEN YOKSUN KALMA VE BEDENSEL HASAR TAZMİNATI
-elif modul == "Destekten Yoksun Kalma & Tazminat":
-    st.header("📈 Destekten Yoksun Kalma ve Bedensel Hasar Tazminatı")
-    st.divider()
-    
-    col_t1, col_t2 = st.columns(2)
-    with col_t1:
-        tablo_secimi = st.selectbox("Yaşam Tablosu Seçimi", ["TRH-2010 (Güncel Resmi Tablo)", "PMF-1931 (Klasik Tablo)"])
-        kazanc_tipi = st.selectbox("Gelir/Kazanç Esası", ["Asgari Ücret (Dinamik)", "Belirlenen Net Aylık Gelir"])
-        aylik_gelir = st.number_input("Esas Alınacak Net Aylık Gelir (TL)", value=17002.12)
-    with col_t2:
-        kusur_orani = st.slider("Davalı/Kusurlu Tarafın Kusur Oranı (%)", 0, 100, 100)
-        maluliyet = st.slider("Maluliyet / Sürekli İş Göremezlik Oranı (%)", 0, 100, 0)
-        yas = st.number_input("Kaza Tarihindeki Yaş", value=30, min_value=0, max_value=100)
+# 📌 2. MODÜL: TAZMİNAT ROBOTU (YALNIZCA ARAÇ DEĞER KAYBI TAZMİNATI)
+elif modul == "Tazminat Robotu":
+    # ─── YALNIZCA BU MODÜL İÇİN ŞİFRE KORUMASI ───
+    if "authenticated" not in st.session_state:
+        st.session_state.authenticated = False
 
-    st.subheader("📅 Dönemsel Hesaplama Parametreleri")
-    col_d1, col_d2 = st.columns(2)
-    with col_d1:
-        aktif_yil = st.number_input("Aktif Çalışma Dönemi Kalan Yıl", value=max(0, 60 - yas))
-        pasif_yil = st.number_input("Pasif (Emeklilik) Dönemi Yıl", value=15)
-    with col_d2:
-        iskonto = st.checkbox("Progresif Rant İskontosu Uygula (%1.82 Özsermaye formülü)", value=True)
+    if not st.session_state.authenticated:
+        col1, col2, col3 = st.columns([1, 1.8, 1])
+        with col2:
+            st.markdown('<p style="color: #C62828; font-weight: bold; margin-top:20px; margin-bottom: 10px; text-align:center;">🔒 BU ROBOTA ERİŞİM KISITLANMIŞTIR</p>', unsafe_allow_html=True)
+            st.markdown('<p style="color: #1A1A2E; font-size: 1.1rem; font-weight: 600; margin-bottom: 5px; text-align:center;">Lütfen Giriş Şifresini Yazın</p>', unsafe_allow_html=True)
+            
+            with st.form("giris_formu", clear_on_submit=False):
+                sifre = st.text_input("Giriş Şifresi:", type="password")
+                submitted = st.form_submit_button("Sisteme Giriş Yap")
+                if submitted:
+                    if sifre == "mahmut123":
+                        st.session_state.authenticated = True
+                        st.rerun()
+                    else:
+                        st.error("❌ Hatalı Şifre! Lütfen tekrar deneyin.")
+        st.stop()
 
-    if st.button("Aktüeryal Tazminat Raporu Oluştur"):
-        toplam_aktif_kazanc = aylik_gelir * 12 * aktif_yil
-        toplam_pasif_kazanc = (aylik_gelir * 0.7) * 12 * pasif_yil if pasif_yil > 0 else 0
-        ham_tazminat = toplam_aktif_kazanc + toplam_pasif_kazanc
-        
-        if maluliyet > 0:
-            ham_tazminat = ham_tazminat * (maluliyet / 100)
-        nihai_tazminat = ham_tazminat * (kusur_orani / 100)
-        
-        st.success(f"📊 Hesaplanan Nihai Tazminat Tutarı: {nihai_tazminat:,.2f} TL")
-        
-        taz_df = pd.DataFrame([{
-            "Seçilen Tablo": tablo_secimi,
-            "Kaza Yaşı": yas,
-            "Kusur Oranı": f"%{kusur_orani}",
-            "Maluliyet": f"%{maluliyet}",
-            "Hesaplanan Net Tazminat": f"{nihai_tazminat:,.2f} TL"
-        }])
-        st.table(taz_df)
-        
-        excel_taz = to_excel({"Tazminat_Raporu": taz_df})
-        st.download_button("📥 Tazminat Raporunu Excel Olarak İndir", data=excel_taz, file_name="aktüeryal_tazminat_raporu.xlsx")
-
-# 📌 3. MODÜL: MEVZUATA UYGUN ARAÇ DEĞER KAYBI ROBOTU (Katsayı Matrisi Güncellendi)
-elif modul == "Araç Değer Kaybı Robotu":
-    st.header("🚗 Araç Değer Kaybı Hesaplama Robotu (Resmi Gazete)")
+    # Şifre doğrulandıktan sonra görüntülenecek tek işlem alanı
+    st.header("🚗 Araç Değer Kaybı Tazminatı Hesaplama Robotu (Resmi Gazete)")
     st.divider()
     
     col1, col2 = st.columns(2)
@@ -179,7 +131,7 @@ elif modul == "Araç Değer Kaybı Robotu":
         ticari_mi = st.checkbox("Araç Ticari veya Kiralık mı? (G.1: -0.05)")
         sbm_sayisi = st.slider("Geçmiş Hasar Kaydı Sayısı (SBM G.2)", 0, 5, 1)
 
-    st.subheader("🛠️ Hasar Gören Parça ve Katsayı Otomasyonu")
+    st.subheader("🛠️ Hasar Gören Parça ve Otomatik Katsayı Hesaplama Entegrasyonu")
     secilen_parca = st.selectbox("Parça Adı Yazın veya Listeden Seçin:", list(PARCA_VERILERI.keys()))
     
     parca_detay = PARCA_VERILERI[secilen_parca]
@@ -212,10 +164,10 @@ elif modul == "Araç Değer Kaybı Robotu":
 
     st.info(f"📊 Seçilen Parçanın Toplam Hasar Puanı (Pi + Oi + Yi): {hk_puan}")
 
-    if st.button("Değer Kaybı Hesapla ve Rapor Üret"):
-        # ─── ⚖️ MEVZUATA UYGUN RESMİ SBM KATSAYI GÜNCELLEMELERİ ───
+    if st.button("Değer Kaybı Tazminatını Hesapla ve Rapor Üret"):
+        # ─── OTOMATİK SBM KATSAYI ÇEKME VE HESAPLAMA MOTORU ───
         
-        # 1. Rayiç Değer Katsayısı (R) - Dinamik Baremler
+        # 1. Rayiç Değer Katsayısı (R) 
         if piyasa_degeri < 150000:
             R = 0.85
         elif piyasa_degeri < 300000:
@@ -225,9 +177,9 @@ elif modul == "Araç Değer Kaybı Robotu":
         elif piyasa_degeri < 1000000:
             R = 1.00
         else:
-            R = 1.05  # Lüks segment koruma çarpanı
+            R = 1.05
             
-        # 2. Kilometre Katsayısı (K) - SBM Aşınma Eğrisi Tablosu
+        # 2. Kilometre Katsayısı (K)
         if km <= 15000:
             K = 1.00
         elif km <= 30000:
@@ -243,21 +195,18 @@ elif modul == "Araç Değer Kaybı Robotu":
         elif km <= 150000:
             K = 0.40
         else:
-            K = 0.20  # 150.000 km üzeri yasal taban sınır
+            K = 0.20
             
         # 3. Hasar Katsayısı (H) Formülasyonu
-        # T: Toplam hasar oranının ağırlık çarpanı
         T = (hasar_tutari * 100 / piyasa_degeri) * 0.10
-        # H katsayısı üst sınırı yasal olarak 1.00 ile sınırlandırılmıştır
         H = min(1.00, (hk_puan + T) / 100)
         
         # 4. Genel Değerlendirme Çarpanı (G)
         g1 = -0.05 if ticari_mi else 0.0
         g2 = -(sbm_sayisi * 0.03) if sbm_sayisi > 0 else 0.0
-        # G çarpanı taban değeri yasal olarak 0.50'nin altına düşemez
         G = max(0.50, 1 + (g1 + g2))
         
-        # Orijinal Yasal Matematiksel Model Üretimi
+        # Yasal Matematiksel Sonuç Üretimi
         dk_sonuc = piyasa_degeri * R * K * H * G
         
         st.divider()
@@ -268,36 +217,34 @@ elif modul == "Araç Değer Kaybı Robotu":
             "Kilometre Katsayısı (K)": K,
             "Hasar Katsayısı (H)": round(H, 4),
             "Genel Değerlendirme (G)": round(G, 2),
-            "HESAPLANAN DEĞER KAYBI": f"{dk_sonuc:,.2f} TL"
+            "HESAPLANAN DEĞER KAYBI TAZMİNATI": f"{dk_sonuc:,.2f} TL"
         }])
         st.table(res_df)
         
         excel_data = to_excel({"Deger_Kaybi_Raporu": res_df})
-        st.download_button("📥 Excel Raporunu İndir", data=excel_data, file_name="deger_kaybi_mevzuat_raporu.xlsx")
+        st.download_button("📥 Excel Raporunu İndir", data=excel_data, file_name="deger_kaybi_tazminat_raporu.xlsx")
 
-# 📌 4. MODÜL: BELİRGİN İÇTİHAT VE PDF ARŞİVİ
+# 📌 3. MODÜL: BELİRGİN İÇTİHAT VE PDF ARŞİVİ
 elif modul == "İçtihat & PDF Bilgi Bankası":
     st.header("📚 Yargıtay İçtihat ve PDF Karar Ambarı")
     st.divider()
     
     with st.container(border=True):
         st.subheader("🔍 İçtihat Arama Filtreleri")
-        arama_hukuk_alani = st.selectbox("Aranacak Hukuk Alanını Seçin:", ["Tümü", "Araç Değer Kaybı", "Bedensel Hasar", "Destekten Yoksun Kalma"], key="search_law")
         arama_kelimesi = st.text_input("Anahtar Kelime Ara (Esas No, Karar No, Parça adı...):")
 
-    tab1, tab2 = st.tabs(["✍️ Yeni İçtihat / İlamsız Karar Metni Ekle", "📄 PDF Karar Dosyası Yükle"])
+    tab1, tab2 = st.tabs(["✍️ Yeni Değer Kaybı İçtihadı Ekle", "📄 PDF Karar Dosyası Yükle"])
     
     with tab1:
         with st.container(border=True):
             st.subheader("Yeni İçtihat Giriş Formu")
-            yeni_hukuk_alani = st.selectbox("İçtihadın Ait Olduğu Hukuk Alanı:", ["Araç Değer Kaybı", "Bedensel Hasar", "Destekten Yoksun Kalma"], key="add_law")
             yeni_baslik = st.text_input("Karar Başlığı / Mahkeme Künyesi:")
             yeni_detay = st.text_area("Karar Metni / Özeti:")
             
             if st.button("Kararı Bilgi Bankasına Kaydet"):
                 if yeni_baslik and yeni_detay:
                     st.session_state.ictihat_havuzu.append({
-                        "hukuk_alani": yeni_hukuk_alani,
+                        "hukuk_alani": "Araç Değer Kaybı",
                         "baslik": yeni_baslik,
                         "detay": yeni_detay
                     })
@@ -317,12 +264,10 @@ elif modul == "İçtihat & PDF Bilgi Bankası":
     st.subheader("📋 Sistemde Arşivlenmiş Aktüel İçtihatlar")
     
     for idx, ictihat in enumerate(st.session_state.ictihat_havuzu):
-        if arama_hukuk_alani != "Tümü" and ictihat["hukuk_alani"] != arama_hukuk_alani:
-            continue
         if arama_kelimesi.lower() not in ictihat["baslik"].lower() and arama_kelimesi.lower() not in ictihat["detay"].lower():
             continue
             
-        with st.expander(f"📌 [{ictihat['hukuk_alani']}] - {ictihat['baslik']}"):
+        with st.expander(f"📌 {ictihat['baslik']}"):
             st.write(ictihat["detay"])
             if st.button("Bu Kararı Sil", key=f"del_{idx}"):
                 st.session_state.ictihat_havuzu.pop(idx)
