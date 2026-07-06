@@ -1,29 +1,12 @@
 import streamlit as st
 import pandas as pd
 import io
-from datetime import date
 
-# Sayfa Genişlik ve Stil Ayarları
+# Sayfa Genişlik Ayarları
 st.set_page_config(page_title="Aktüeryal Hesaplama ve İçtihat Bilgi Bankası", layout="wide")
 
-# Görünürlüğü ve kamufle olan alanları düzeltmek için özel CSS
-st.markdown("""
-<style>
-    .styled-box {
-        background-color: #f8f9fa;
-        border: 2px solid #d1d8e0;
-        padding: 15px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-    }
-    .main-header {
-        color: #1e3799;
-        font-weight: bold;
-        border-bottom: 2px solid #1e3799;
-        padding-bottom: 5px;
-    }
-</style>
-""", unsafe_allowed_html=True)
+# Görünürlüğü tek satırda düzelten güvenli CSS
+st.markdown("<style>.styled-box { background-color: #f8f9fa; border: 2px solid #d1d8e0; padding: 15px; border-radius: 8px; margin-bottom: 20px; } .main-header { color: #1e3799; font-weight: bold; border-bottom: 2px solid #1e3799; padding-bottom: 5px; }</style>", unsafe_allowed_html=True)
 
 st.title("⚖️ Entegre Aktüeryal Tazminat Hesaplama & İçtihat Sistemi")
 
@@ -99,7 +82,6 @@ if modul == "Araç Değer Kaybı":
         ticari_mi = st.checkbox("Araç Ticari veya Kiralık mı? (G.1: -0.05)")
         sbm_sayisi = st.slider("Geçmiş Hasar Kaydı Sayısı (SBM G.2)", 0, 5, 1)
 
-    # 1. GERİ BİLDİRİM: OTOMATİK PARÇA VE KATSAYI SEÇİM ALANI
     st.markdown("### 🛠️ Hasar Gören Parça ve İşlem Seçimi")
     secilen_parca = st.selectbox("Parça Adı Yazın veya Listeden Seçin:", list(PARCA_VERILERI.keys()))
     
@@ -135,21 +117,14 @@ if modul == "Araç Değer Kaybı":
     st.success(f"📊 Seçilen Parçanın Toplam Hasar Puanı (Pi + Oi + Yi): {hk_puan}")
 
     if st.button("Hesaplamayı Tamamla ve Excel Raporu Üret"):
-        # Matematiksel Hesaplamalar
-        # 1. R Katsayısı
         R = 1.00 if piyasa_degeri >= 750000 else 0.95
-        # 2. K Katsayısı
         K = 0.95 if km < 50000 else 0.90
-        # 3. T Katsayısı
         T = (hasar_tutari * 100 / piyasa_degeri) * 0.10
-        # 4. H Katsayısı
         H = (hk_puan + T) / 100
-        # 5. G Katsayısı
         g1 = -0.05 if ticari_mi else 0.0
         g2 = -(sbm_sayisi * 0.03) if sbm_sayisi > 0 else 0.0
         G = 1 + (g1 + g2)
         
-        # Nihai Değer Kaybı (DK)
         dk_sonuc = piyasa_degeri * R * K * H * G
         
         st.markdown("---")
@@ -164,29 +139,22 @@ if modul == "Araç Değer Kaybı":
         }])
         st.table(res_df)
         
-        # Excel Butonunu Tetikleme
         excel_data = to_excel({"Deger_Kaybi_Raporu": res_df})
         st.download_button("📥 Excel Raporunu İndir", data=excel_data, file_name="deger_kaybi_mevzuat_raporu.xlsx")
 
-# ============================================================
-# 2 ve 3. GERİ BİLDİRİM: İÇTİHAT & PDF YÜKLEME VE KAMUFLAJ DÜZELTME PANELDİR
-# ============================================================
 elif modul == "İçtihat & PDF Bilgi Bankası":
     st.markdown("<h2 class='main-header'>📚 Yargıtay İçtihat ve PDF Karar Ambarı</h2>", unsafe_allowed_html=True)
     
-    # 3. GERİ BİLDİRİM: Kamufle Olan Arama Bölümünün Belirginleştirilmesi
     st.markdown("<div class='styled-box'><h4>🔍 İçtihat Arama Filtreleri (Görünüm Düzeltildi)</h4>", unsafe_allowed_html=True)
     arama_hukuk_alani = st.selectbox("Aranacak Hukuk Alanını Seçin:", ["Tümü", "Araç Değer Kaybı", "Bedensel Hasar", "Destekten Yoksun Kalma"], key="search_law")
     arama_kelimesi = st.text_input("Anahtar Kelime Ara (Esas No, Karar No, Parça adı...):")
     st.markdown("</div>", unsafe_allowed_html=True)
 
-    # 2. GERİ BİLDİRİM: Kalıcı Arşiv Ekleme Sekmeleri
     tab1, tab2 = st.tabs(["✍️ Yeni İçtihat / İlamsız Karar Metni Ekle", "📄 PDF Karar Dosyası Yükle"])
     
     with tab1:
         st.markdown("<div class='styled-box'>", unsafe_allowed_html=True)
         st.subheader("Yeni İçtihat Giriş Formu")
-        # 3. GERİ BİLDİRİM: Kamufle olan hukuk alanı kutusu düzeltildi
         yeni_hukuk_alani = st.selectbox("İçtihadın Ait Olduğu Hukuk Alanı (Belirginleştirildi):", ["Araç Değer Kaybı", "Bedensel Hasar", "Destekten Yoksun Kalma"], key="add_law")
         yeni_baslik = st.text_input("Karar Başlığı / Mahkeme Künyesi:")
         yeni_detay = st.text_area("Karar Metni / Özeti:")
@@ -198,7 +166,7 @@ elif modul == "İçtihat & PDF Bilgi Bankası":
                     "baslik": yeni_baslik,
                     "detay": yeni_detay
                 })
-                st.success("✔️ İçtihat başarıyla hafızaya eklendi ve aşağıdaki listeye yansıtıldı!")
+                st.success("✔️ İçtihat başarıyla hafızaya eklendi!")
                 st.rerun()
             else:
                 st.error("Lütfen Başlık ve Karar Metni alanlarını boş bırakmayın.")
@@ -212,12 +180,10 @@ elif modul == "İçtihat & PDF Bilgi Bankası":
             st.success(f"📁 '{yuklenen_file.name}' başarıyla lokal bellek havuzuna aktarıldı!")
         st.markdown("</div>", unsafe_allowed_html=True)
 
-    # 📜 DİNAMİK LİSTELEME ALANI
     st.markdown("---")
     st.subheader("📋 Sistemde Arşivlenmiş Aktüel İçtihatlar")
     
     for idx, ictihat in enumerate(st.session_state.ictihat_havuzu):
-        # Filtreleme mantığı
         if arama_hukuk_alani != "Tümü" and ictihat["hukuk_alani"] != arama_hukuk_alani:
             continue
         if arama_kelimesi.lower() not in ictihat["baslik"].lower() and arama_kelimesi.lower() not in ictihat["detay"].lower():
