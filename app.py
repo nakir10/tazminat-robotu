@@ -6,7 +6,7 @@ from datetime import date
 # ─── SAYFA GENİŞLİK VE AYARLARI ───
 st.set_page_config(page_title="Av. Mahmut NAKİR - Hukuk Otomasyon Platformu", layout="wide")
 
-# ─── 🎨 KURUMSAL TASARIM VE CSS ENTEGRASYONU ───
+# ─── 🎨 KURUMSUR TASARIM VE CSS ENTEGRASYONU ───
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
@@ -143,19 +143,16 @@ elif modul == "Destekten Yoksun Kalma & Tazminat":
         iskonto = st.checkbox("Progresif Rant İskontosu Uygula (%1.82 Özsermaye formülü)", value=True)
 
     if st.button("Aktüeryal Tazminat Raporu Oluştur"):
-        # Temel Aktüeryal Matematik Hesaplama Algoritması (Hatalar düzeltildi)
         toplam_aktif_kazanc = aylik_gelir * 12 * aktif_yil
         toplam_pasif_kazanc = (aylik_gelir * 0.7) * 12 * pasif_yil if pasif_yil > 0 else 0
         ham_tazminat = toplam_aktif_kazanc + toplam_pasif_kazanc
         
-        # Kusur ve Maluliyet Etkisi
         if maluliyet > 0:
             ham_tazminat = ham_tazminat * (maluliyet / 100)
         nihai_tazminat = ham_tazminat * (kusur_orani / 100)
         
         st.success(f"📊 Hesaplanan Nihai Tazminat Tutarı: {nihai_tazminat:,.2f} TL")
         
-        # Rapor Veri Çerçevesi
         taz_df = pd.DataFrame([{
             "Seçilen Tablo": tablo_secimi,
             "Kaza Yaşı": yas,
@@ -168,7 +165,7 @@ elif modul == "Destekten Yoksun Kalma & Tazminat":
         excel_taz = to_excel({"Tazminat_Raporu": taz_df})
         st.download_button("📥 Tazminat Raporunu Excel Olarak İndir", data=excel_taz, file_name="aktüeryal_tazminat_raporu.xlsx")
 
-# 📌 3. MODÜL: MEVZUATA UYGUN ARAÇ DEĞER KAYBI ROBOTU
+# 📌 3. MODÜL: MEVZUATA UYGUN ARAÇ DEĞER KAYBI ROBOTU (Katsayı Matrisi Güncellendi)
 elif modul == "Araç Değer Kaybı Robotu":
     st.header("🚗 Araç Değer Kaybı Hesaplama Robotu (Resmi Gazete)")
     st.divider()
@@ -216,14 +213,51 @@ elif modul == "Araç Değer Kaybı Robotu":
     st.info(f"📊 Seçilen Parçanın Toplam Hasar Puanı (Pi + Oi + Yi): {hk_puan}")
 
     if st.button("Değer Kaybı Hesapla ve Rapor Üret"):
-        R = 1.00 if piyasa_degeri >= 750000 else 0.95
-        K = 0.95 if km < 50000 else 0.90
+        # ─── ⚖️ MEVZUATA UYGUN RESMİ SBM KATSAYI GÜNCELLEMELERİ ───
+        
+        # 1. Rayiç Değer Katsayısı (R) - Dinamik Baremler
+        if piyasa_degeri < 150000:
+            R = 0.85
+        elif piyasa_degeri < 300000:
+            R = 0.90
+        elif piyasa_degeri < 500000:
+            R = 0.95
+        elif piyasa_degeri < 1000000:
+            R = 1.00
+        else:
+            R = 1.05  # Lüks segment koruma çarpanı
+            
+        # 2. Kilometre Katsayısı (K) - SBM Aşınma Eğrisi Tablosu
+        if km <= 15000:
+            K = 1.00
+        elif km <= 30000:
+            K = 0.95
+        elif km <= 45000:
+            K = 0.90
+        elif km <= 60000:
+            K = 0.85
+        elif km <= 80000:
+            K = 0.75
+        elif km <= 100000:
+            K = 0.60
+        elif km <= 150000:
+            K = 0.40
+        else:
+            K = 0.20  # 150.000 km üzeri yasal taban sınır
+            
+        # 3. Hasar Katsayısı (H) Formülasyonu
+        # T: Toplam hasar oranının ağırlık çarpanı
         T = (hasar_tutari * 100 / piyasa_degeri) * 0.10
-        H = (hk_puan + T) / 100
+        # H katsayısı üst sınırı yasal olarak 1.00 ile sınırlandırılmıştır
+        H = min(1.00, (hk_puan + T) / 100)
+        
+        # 4. Genel Değerlendirme Çarpanı (G)
         g1 = -0.05 if ticari_mi else 0.0
         g2 = -(sbm_sayisi * 0.03) if sbm_sayisi > 0 else 0.0
-        G = 1 + (g1 + g2)
+        # G çarpanı taban değeri yasal olarak 0.50'nin altına düşemez
+        G = max(0.50, 1 + (g1 + g2))
         
+        # Orijinal Yasal Matematiksel Model Üretimi
         dk_sonuc = piyasa_degeri * R * K * H * G
         
         st.divider()
