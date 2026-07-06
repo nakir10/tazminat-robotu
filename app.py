@@ -87,17 +87,11 @@ st.markdown("""
 
 # ─── SOL MENÜ NAVİGASYONU ───
 st.sidebar.markdown("<h3 style='color:#C9A84C;'>🏛️ NAVİGASYON PANELİ</h3>", unsafe_allow_html=True)
-modul = st.sidebar.selectbox("Çalışma Modülü Seçin", ["Ana Sayfa", "Tazminat Robotu", "İçtihat & PDF Bilgi Bankası"])
+# Sadece iki modül kaldı: Tazminat Robotu ve İçtihat Bankası
+modul = st.sidebar.selectbox("Çalışma Modülü Seçin", ["Tazminat Robotu", "İçtihat & PDF Bilgi Bankası"])
 
-# 📌 1. MODÜL: ANA SAYFA (Tamamen Boş ve Projesiz Karşılama Alanı)
-if modul == "Ana Sayfa":
-    with st.container(border=True):
-        st.markdown('<p style="font-size: 1.4rem; font-weight:600; font-family: serif; margin-bottom:10px;">Sisteme Hoş Geldiniz</p>', unsafe_allow_html=True)
-        st.markdown('<p style="font-size: 0.95rem; color:#555;">Çalışmak istediğiniz hukuk otomasyon modülüne sol tarafta yer alan navigasyon panelini kullanarak erişebilirsiniz.</p>', unsafe_allow_html=True)
-
-# 📌 2. MODÜL: TAZMİNAT ROBOTU (YALNIZCA ARAÇ DEĞER KAYBI TAZMİNATI)
-elif modul == "Tazminat Robotu":
-    # ─── YALNIZCA BU MODÜL İÇİN ŞİFRE KORUMASI ───
+# 📌 1. MODÜL: TAZMİNAT ROBOTU (ŞİFRE KORUMALI)
+if modul == "Tazminat Robotu":
     if "authenticated" not in st.session_state:
         st.session_state.authenticated = False
 
@@ -118,7 +112,7 @@ elif modul == "Tazminat Robotu":
                         st.error("❌ Hatalı Şifre! Lütfen tekrar deneyin.")
         st.stop()
 
-    # Şifre doğrulandıktan sonra görüntülenecek tek işlem alanı
+    # Şifre doğruysa açılacak tek işlem alanı
     st.header("🚗 Araç Değer Kaybı Tazminatı Hesaplama Robotu (Resmi Gazete)")
     st.divider()
     
@@ -224,7 +218,7 @@ elif modul == "Tazminat Robotu":
         excel_data = to_excel({"Deger_Kaybi_Raporu": res_df})
         st.download_button("📥 Excel Raporunu İndir", data=excel_data, file_name="deger_kaybi_tazminat_raporu.xlsx")
 
-# 📌 3. MODÜL: BELİRGİN İÇTİHAT VE PDF ARŞİVİ
+# 📌 2. MODÜL: BELİRGİN İÇTİHAT VE PDF ARŞİVİ
 elif modul == "İçtihat & PDF Bilgi Bankası":
     st.header("📚 Yargıtay İçtihat ve PDF Karar Ambarı")
     st.divider()
