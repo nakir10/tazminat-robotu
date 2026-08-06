@@ -1,5 +1,5 @@
 from datetime import date
-
+from dateutil.relativedelta import relativedelta
 from veriler.trh2010 import (
     TRH2010_ERKEK,
     TRH2010_KADIN,
@@ -53,3 +53,14 @@ def yas_tam_ay(dogum: date, referans: date) -> float:
     """Tam yıl + kesirli ay (aktif dönem hesabında hassasiyet için)."""
     d = relativedelta(referans, dogum)
     return d.years + d.months / 12
+
+def _aktif_pasif_donem(yas: int, calisiyor_mu: bool, emekli_mi: bool) -> str:
+    """
+    Ek-2 Madde 5: aktif/pasif dönem tespiti.
+    Döndürür: "aktif" | "aktif_2yil" | "pasif"
+    """
+    if yas < 18:
+        return "pasif"
+    if yas < 65:
+        return "pasif" if (emekli_mi and not calisiyor_mu) else "aktif"
+    return "aktif_2yil" if calisiyor_mu else "pasif"
