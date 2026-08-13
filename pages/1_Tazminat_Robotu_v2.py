@@ -90,6 +90,7 @@ from hesaplamalar.deger_kaybi import (
     arac_gruplari,
 )
 from hesaplamalar.bedensel_hasar import bedensel_hasar_hesapla
+from hesaplamalar.destekten_yoksun import destekten_yoksun_kalma_hesapla
 
 # ============================================================
 # MODÜL 2: SAKATLIK TAZMİNATI
@@ -121,123 +122,7 @@ def get_yeniden_evlenme_olasiligi(yas: int, cinsiyet: str, velayetteki_cocuk: in
     return max(0.0, oran - velayetteki_cocuk * 0.05)
 
 
-def destekten_yoksun_kalma_hesapla(
-    destek_dogum_tarihi: date,
-    destek_cinsiyet: str,
-    vefat_tarihi: date,
-    hesap_tarihi: date,
-    destek_aylik_net_gelir: float,
-    vefat_donemi_agi_dahil_net: float,   # vefat tarihindeki AGİ dahil net ASÜ
-    hesap_donemi_agi_dahil_net: float,   # hesap tarihindeki AGİ dahil net ASÜ
-    agi_haric_net_asgari: float,
-    resmi_belgeli_gelir: bool,
-    destek_calisiyor_mu: bool,
-    destek_emekli_mi: bool,
-    es_dogum_tarihi: date = None,
-    es_cinsiyet: str = "Kadın",
-    es_yeniden_evlendi_mi: bool = False,
-    es_evlenme_tarihi: date = None,
-    velayetteki_cocuk_sayisi: int = 0,
-    cocuklar: list = None,  # [{"dogum_tarihi":date,"cinsiyet":str,"lisans_mi":bool}]
-    anne_dogum_tarihi: date = None,
-    baba_dogum_tarihi: date = None,
-    anne_hayatta_mi: bool = False,
-    baba_hayatta_mi: bool = False,
-    kusur_orani_destek: float = 0.0,
-) -> dict:
-    """
-    Destekten Yoksun Kalma Tazminatı — Ek-3
-    Askerlik tenzili YAPILMAZ (Madde 9/3).
-    İşlemiş dönem: destek şahsının payı çıkarılarak hak sahiplerine dağıtılır.
-    """
-    if cocuklar is None:
-        cocuklar = []
 
-    yas_destek_vefat = yas_tam(destek_dogum_tarihi, vefat_tarihi)
-    yas_destek_hesap = yas_tam(destek_dogum_tarihi, hesap_tarihi)
-    ex_destek = get_ex(yas_destek_hesap, destek_cinsiyet)
-
-    # Aktif/pasif dönem — Ek-3 Madde 5 (vefat tarihindeki yaş esas)
-    donem_destek = _aktif_pasif_donem(yas_destek_vefat, destek_calisiyor_mu, destek_emekli_mi)
-
-    # ----------------------------------------------------------------
-    # [DÜZ-1] GELİR TESPİTİ — Ek-3 Madde 7(a)
-    # ----------------------------------------------------------------
-    if resmi_belgeli_gelir and vefat_donemi_agi_dahil_net > 0:
-        oran_k = destek_aylik_net_gelir / vefat_donemi_agi_dahil_net
-        if destek_aylik_net_gelir > vefat_donemi_agi_dahil_net:
-            aktif_isleyecek_aylik = hesap_donemi_agi_dahil_net * oran_k
-        else:
-            aktif_isleyecek_aylik = hesap_donemi_agi_dahil_net
-    else:
-        aktif_isleyecek_aylik = hesap_donemi_agi_dahil_net
-
-    pasif_aylik = agi_haric_net_asgari
-
-    # İşlemiş dönem geliri (gelir tespitinde vefat tarihi verileri)
-    if resmi_belgeli_gelir:
-        islemis_aylik = destek_aylik_net_gelir
-    else:
-        islemis_aylik = vefat_donemi_agi_dahil_net
-
-    # ----------------------------------------------------------------
-    # PAY YAPISI — Ek-3 Madde 6
-    # ----------------------------------------------------------------
-    destek_pay = 2
-    es_pay_sayi = 2 if es_dogum_tarihi is not None else 0
-    cocuk_pay_sayi = len(cocuklar)
-    anne_pay_sayi = 0
-    baba_pay_sayi = 0
-    if anne_hayatta_mi and anne_dogum_tarihi:
-        anne_pay_sayi = 2 if (not baba_hayatta_mi or not baba_dogum_tarihi) else 1
-    if baba_hayatta_mi and baba_dogum_tarihi:
-        baba_pay_sayi = 2 if (not anne_hayatta_mi or not anne_dogum_tarihi) else 1
-
-    toplam_pay = destek_pay + es_pay_sayi + cocuk_pay_sayi + anne_pay_sayi + baba_pay_sayi
-    if toplam_pay == 0:
-        toplam_pay = 1  # sıfır bölme koruması
-
-    # [DÜZ-3] Hak sahiplerine dağıtılacak gelir oranı = 1 - destek_pay/toplam_pay
-    # Destek şahsının kendi payı çıkarılır; yalnızca kalan pay hak sahiplerine verilir.
-    hak_sahibi_gelir_orani = 1.0 - (destek_pay / toplam_pay)
-
-    # ----------------------------------------------------------------
-    # İŞLEMİŞ DÖNEM (iskontosuz, güncellemesiz — Ek-3 Madde 8/1)
-    # ----------------------------------------------------------------
-    delta = relativedelta(hesap_tarihi, vefat_tarihi)
-    islemis_sure_ay = delta.years * 12 + delta.months + delta.days / 30.4375
-    islemis_sure_ay = max(0.0, islemis_sure_ay)
-
-    # Hak sahiplerine düşen toplam işlemiş dönem havuzu
-    islemis_havuz = islemis_aylik * islemis_sure_ay * hak_sahibi_gelir_orani
-
-    # ----------------------------------------------------------------
-    # İŞLEYECEK DÖNEM ANÜİTELERİ (destek şahsına ait)
-    # ----------------------------------------------------------------
-    if donem_destek == "aktif" and yas_destek_hesap < 65:
-        n_aktif = 65 - yas_destek_hesap
-        Dx_d = get_Dx(yas_destek_hesap, destek_cinsiyet)
-        Dx_65 = get_Dx(65, destek_cinsiyet)
-        ae_aktif_d = anuite_donemsel(yas_destek_hesap, destek_cinsiyet, n_aktif)
-        ae_pasif_d = anuite_tam_hayat(65, destek_cinsiyet) * (Dx_65 / Dx_d) if Dx_d else 0.0
-    elif donem_destek == "aktif_2yil":
-        Dx_d = get_Dx(yas_destek_hesap, destek_cinsiyet)
-        Dx_yeni = get_Dx(min(yas_destek_hesap + 2, 99), destek_cinsiyet)
-        ae_aktif_d = anuite_donemsel(yas_destek_hesap, destek_cinsiyet, 2.0)
-        ae_pasif_d = anuite_tam_hayat(min(yas_destek_hesap + 2, 99), destek_cinsiyet) * (Dx_yeni / Dx_d) if Dx_d else 0.0
-    else:
-        ae_aktif_d = 0.0
-        ae_pasif_d = anuite_tam_hayat(yas_destek_hesap, destek_cinsiyet)
-
-    def _isleyecek_kisi(yas_k: int, cinsiyet_k: str, n_desteklik: float) -> float:
-        """
-        Hak sahibi x yaşında, n_desteklik yıl süre için äx:n.
-        Üst limit: destek şahsının ex beklenen ömrüne göre kısıtlanır.
-        """
-        n_efektif = min(max(n_desteklik, 0.0), ex_destek)
-        if n_efektif <= 0:
-            return 0.0
-        return anuite_donemsel(yas_k, cinsiyet_k, n_efektif)
 
     def _isleyecek_gelir(n_yil: float, cinsiyet_k: str, yas_k: int) -> float:
         """
